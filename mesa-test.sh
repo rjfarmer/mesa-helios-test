@@ -6,7 +6,6 @@
 #SBATCH --mem 16gb
 #SBATCH -J test-build
 #SBATCH --no-requeue
-#SBATCH --exclude=helios-cn001,helios-cn004
 
 echo $HOME
 echo $OUT_FOLD
@@ -28,18 +27,15 @@ echo $OUT_FOLD
 echo $HOME
 echo "**********"
 #Set variables
-cd $HOME/mesa/scripts
 
-source $HOME/mesa/scripts/mesa_test.sh
+source ~/data/mesa/mesa-helios-test/mesa_test.sh
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 echo $MESASDK_ROOT
 
-echo $VIN
+echo $VERSION
 
-export OUT_FOLD="$HOME/mesa/mesa/testhub/$VIN-$SDK"
-echo $OUT_FOLD
-
-while [[ $(ls -d ~/mesa/mesa/mesatest/tmp.* | wc -l) -gt 10 ]];
+while [[ $(ls -d "$MESA_TMP"/tmp.* | wc -l) -gt 10 ]];
 do
 	echo "Too many tests in progress sleeping"
 	date
@@ -47,95 +43,74 @@ do
 done
 
 
-MESA_DIR=$(mktemp -d -p ~/mesa/mesa/mesatest)
+MESA_DIR=$(mktemp -d -p "$MESA_TMP")
 echo $MESA_DIR
 
+export OUT_FOLD=$MESA_LOG/$VERSION
 mkdir -p "$OUT_FOLD"
+echo $OUT_FOLD
 
-
-skip_tests=0
-svn co -r "$VIN" file:///home/rfarmer/mesa/mesa/assembla_mesa/trunk "$MESA_DIR"
+git clone $MESA_GIT $MESA_DIR
 
 if [[ $? != 0 ]]; then
-	echo "checkout failed"
+	echo "Clone failed"
 	exit 1
 fi
 
-if [[ $(svn log -r "$VIN" file:///home/rfarmer/mesa/mesa/assembla_mesa/trunk) == *'[ci skip]'* ]];then
-        skip_tests=1
+cd $MESA_DIR || exit
+
+git checkout $VERSION
+if [[ $? != 0 ]]; then
+        echo "checkout failed"
+        exit 1
 fi
 
 
-echo "* $MESA_DIR"
-cd "$MESA_DIR"
-source $HOME/mesa/scripts/mesa_test.sh
-export MESA_DIR
+export skip_tests=0
+if [[ $(git log -1) == *'[ci skip]'* ]];then
+        skip_tests=1
+fi
 
 ./clean
 
 ./install
 error_code=$?
 
-~/bin/mesa_test submit_revision "$MESA_DIR" --force
+#~/bin/mesa_test submit_revision "$MESA_DIR" --force
 
 if [[ $error_code != 0 ]] || [[ ! -f "$MESA_DIR/lib/libstar.a" ]]; then
 	echo "Install failed"
-	cd "$HOME"
+	cd "$HOME" || exit
 	rm -rf "$MESA_DIR"
 	exit 1
 fi
 
-#rm "$MESA_DIR"/data/*/cache/*
+rm "${MESA_DIR}/data/*/cache/*"
 
 
 depend="$SLURM_JOB_ID"
 
 if [[ $skip_tests -eq 0 ]]; then
-	cd "$MESA_DIR"/star/test_suite
-	star_count=$(./count_tests)
-	if [[ -z "$star_count" ]];then
-		echo "No star tests found"
-	else
-		cd "$MESA_CLUSTER"
-		single=$(sbatch -a 1-"$star_count"%20 -o "$OUT_FOLD/single-%a.out" --export=MESA_DIR="$MESA_DIR",HOME="$HOME",OUT_FOLD="$OUT_FOLD" --parsable ./mesa-single.sh)
-		depend=${depend}":$single"
-	fi
-
-	cd "$MESA_DIR"/binary/test_suite
-	binary_count=$(./count_tests)
-	if [[ -z "$binary_count" ]]; then
-		echo "No binary tests found"
-	else
-		cd "$MESA_CLUSTER"
-		binary=$(sbatch -a 1-"$binary_count" -o "$OUT_FOLD/binary-%a.out" --export=MESA_DIR="$MESA_DIR",HOME="$HOME",OUT_FOLD="$OUT_FOLD" --parsable ./mesa-binary.sh)
-		depend=${depend}":$binary"
-	fi
-
-
-	cd "$MESA_DIR"/astero/test_suite
-        astero_count=$(./count_tests)
-        if [[ -z "$astero_count" ]]; then
-                echo "No astero tests found"
-        else
-            	cd "$MESA_CLUSTER"
-                astero=$(sbatch -a 1-"$astero_count" -o "$OUT_FOLD/astero-%a.out" --export=MESA_DIR="$MESA_DIR",HOME="$HOME",OUT_FOLD="$OUT_FOLD" --parsable ./mesa-astero.sh)
-                depend=${depend}":$astero"
-        fi
-
-
-	echo "Star " $star_count "binary " $binary_count "Astero " $astero_count
-	echo $single $binary $astero
-else
-	cd "$MESA_CLUSTER"
-	single=$(sbatch -a 1-1 -o "$OUT_FOLD/single-%a.out" --export=MESA_DIR="$MESA_DIR",HOME="$HOME",OUT_FOLD="$OUT_FOLD" --parsable ./mesa-single.sh)
-	depend=${depend}":$single"
+	for i in star binary astero;
+	do
+		cd "$MESA_DIR"/$i/test_suite || exit
+		count=$(./count_tests)
+		if [[ -z "$count" ]];then
+			echo "No $i tests found"
+		else
+			cd "$MESA_CLUSTER" || exit
+			slurm_id=$(sbatch -a 1-"$count"%20 -o "$OUT_FOLD/${i}-%a.out" --export=MESA_DIR="$MESA_DIR",OUT_FOLD="$OUT_FOLD",OBJECT="$i" --parsable $MESA_SCRIPTS/mesa-run-test-suite.sh)
+			depend=${depend}":$slurm_id"
+		fi		
+		echo $i $slurm_id
+	done
 fi
-echo $depend
-cd $HOME/mesa/scripts/
-sbatch -o "$OUT_FOLD"/test-final.out --dependency=afterany:"$depend" --export=HOME="$HOME",MESA_DIR="$MESA_DIR",OUT_FOLD="$OUT_FOLD" ./mesa-test-final.sh
+echo "$depend"
+cd "$MESA_SCRIPTS" || exit
+sbatch -o "${OUT_FOLD}"/test-final.out --dependency=afterany:"$depend" --export=HOME="$HOME",OUT_FOLD="$OUT_FOLD" "${MESA_SCRIPTS}/mesa-test-final.sh"
 
 
 
-} 2>&1 | tee "$OUT_FOLD"/tee.txt
+} 2>&1 | tee "${OUT_FOLD}"/tee.txt
 
 
