@@ -12,6 +12,7 @@ echo $OUT_FOLD
 echo "-----"
 
 {
+# Dont let this file get confused with mesa_test.sh
 if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
 	echo "script ${BASH_SOURCE[0]} is being sourced ..."
 	exit 1
@@ -35,6 +36,7 @@ echo $MESASDK_ROOT
 
 echo $VERSION
 
+# Limit number of mesa's being tested at once
 while [[ $(ls -d "$MESA_TMP"/tmp.* | wc -l) -gt 10 ]];
 do
 	echo "Too many tests in progress sleeping"
@@ -42,7 +44,7 @@ do
 	sleep 10m
 done
 
-
+# Make a temporay folder to build mesa in
 MESA_DIR=$(mktemp -d -p "$MESA_TMP")
 echo $MESA_DIR
 
@@ -50,6 +52,7 @@ export OUT_FOLD=$MESA_LOG/$VERSION
 mkdir -p "$OUT_FOLD"
 echo $OUT_FOLD
 
+# Checkout to new folder
 git clone $MESA_GIT $MESA_DIR
 
 if [[ $? != 0 ]]; then
@@ -65,7 +68,7 @@ if [[ $? != 0 ]]; then
         exit 1
 fi
 
-
+# Look for tests to be skipped
 export skip_tests=0
 if [[ $(git log -1) == *'[ci skip]'* ]];then
         skip_tests=1
@@ -78,6 +81,7 @@ error_code=$?
 
 #~/bin/mesa_test submit_revision "$MESA_DIR" --force
 
+# Check if mesa installed correctly
 if [[ $error_code != 0 ]] || [[ ! -f "$MESA_DIR/lib/libstar.a" ]]; then
 	echo "Install failed"
 	cd "$HOME" || exit
@@ -90,6 +94,7 @@ rm "${MESA_DIR}/data/*/cache/*"
 
 depend="$SLURM_JOB_ID"
 
+# Submit test cases
 if [[ $skip_tests -eq 0 ]]; then
 	for i in star binary astero;
 	do
@@ -107,6 +112,7 @@ if [[ $skip_tests -eq 0 ]]; then
 fi
 echo "$depend"
 cd "$MESA_SCRIPTS" || exit
+# Cleanup script to remove MESA_DIR
 sbatch -o "${OUT_FOLD}"/test-final.out --dependency=afterany:"$depend" --export=HOME="$HOME",OUT_FOLD="$OUT_FOLD" "${MESA_SCRIPTS}/mesa-test-final.sh"
 
 

@@ -20,8 +20,8 @@ echo $MESA_DIR
 source ~/data/mesa/mesa-helios-test/mesa_test.sh
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
-#CD to folder
 
+# Where we will run one test case
 mkdir -p /hddstore/$USER
 export MESA_CACHES_DIR=$(mktemp -d -p /hddstore/$USER)
 echo $MESA_CACHES_DIR
@@ -30,8 +30,15 @@ ID=$SLURM_ARRAY_TASK_ID
 
 cd $MESA_DIR/$OBJECT/test_suite
 
+# Map id number to MESA test case name
 folder=$(./list_tests $ID)
 echo $folder $ID
+
+# We want to run mesa on a local hard drive but store MESA_DIR
+# on the network.
+# This moves the folder ontot the local hard drive,
+# soft links back to MESA_DIR so mesa_test does not get confused about missing test cases
+# Then we need to fix the inlists now that we are running outside of MESA_DIR
 
 mv "$folder" "$MESA_CACHES_DIR/$folder"
 
