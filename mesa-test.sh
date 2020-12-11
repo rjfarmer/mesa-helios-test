@@ -104,7 +104,7 @@ if [[ $skip_tests -eq 0 ]]; then
 			echo "No $i tests found"
 		else
 			cd "$MESA_CLUSTER" || exit
-			slurm_id=$(sbatch -a 1-"$count"%20 -o "$OUT_FOLD/${i}-%a.out" --export=MESA_DIR="$MESA_DIR",OUT_FOLD="$OUT_FOLD",OBJECT="$i" --parsable $MESA_SCRIPTS/mesa-run-test-suite.sh)
+			slurm_id=$(sbatch -a 1-"$count"%20 -o "$OUT_FOLD/${i}-%a.out" --export=MESA_DIR="$MESA_DIR",OUT_FOLD="$OUT_FOLD",OBJECT="$i" --parsable "$MESA_SCRIPTS"/mesa-run-test-suite.sh)
 			depend=${depend}":$slurm_id"
 		fi		
 		echo $i $slurm_id
