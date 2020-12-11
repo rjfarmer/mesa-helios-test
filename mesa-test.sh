@@ -45,7 +45,7 @@ do
 done
 
 # Make a temporay folder to build mesa in
-MESA_DIR=$(mktemp -d -p "$MESA_TMP")
+export MESA_DIR=$(mktemp -d -p "$MESA_TMP")
 echo $MESA_DIR
 
 export OUT_FOLD=$MESA_LOG/$VERSION
