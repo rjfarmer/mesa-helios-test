@@ -89,7 +89,7 @@ if [[ $error_code != 0 ]] || [[ ! -f "$MESA_DIR/lib/libstar.a" ]]; then
 	exit 1
 fi
 
-rm "${MESA_DIR}/data/*/cache/*"
+rm "$MESA_DIR"/data/*/cache/*
 
 
 depend="$SLURM_JOB_ID"

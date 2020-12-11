@@ -36,8 +36,8 @@ echo $folder $ID
 
 # We want to run mesa on a local hard drive but store MESA_DIR
 # on the network.
-# This moves the folder ontot the local hard drive,
-# soft links back to MESA_DIR so mesa_test does not get confused about missing test cases
+# This moves the folder onto the local hard drive,
+# then soft links back to MESA_DIR so mesa_test does not get confused about missing test cases
 # Then we need to fix the inlists now that we are running outside of MESA_DIR
 
 mv "$folder" "$MESA_CACHES_DIR/$folder"
