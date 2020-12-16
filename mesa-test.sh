@@ -37,7 +37,7 @@ echo $MESASDK_ROOT
 echo $VERSION
 
 # Limit number of mesa's being tested at once
-while [[ $(ls -d "$MESA_TMP"/tmp.* | wc -l) -gt 10 ]];
+while [[ $(ls -d "${MESA_TMP}"/tmp.* | wc -l) -gt 10 ]];
 do
 	echo "Too many tests in progress sleeping"
 	date
@@ -60,7 +60,7 @@ if [[ $? != 0 ]]; then
         exit 1
 fi
 
-cd $MESA_DIR
+cd "${MESA_DIR}" || exit
 
 # Look for tests to be skipped
 export skip_tests=0
@@ -68,7 +68,7 @@ if [[ $(git log -1) == *'[ci skip]'* ]];then
 	export skip_tests=1
 fi
 
-rm "$MESA_DIR"/data/*/cache/*
+rm "${MESA_DIR}"/data/*/cache/*
 
 
 depend="$SLURM_JOB_ID"
@@ -77,13 +77,12 @@ depend="$SLURM_JOB_ID"
 if [[ $skip_tests -eq 0 ]]; then
 	for module in star binary astero;
 	do
-		cd "${MESA_DIR}"/${module}/test_suite || exit
+		cd "${MESA_DIR}/${module}/test_suite" || exit
 		count=$(./count_tests)
 		if [[ -z "$count" ]];then
-			echo "No $i tests found"
+			echo "No $module tests found"
 		else
-			cd "$MESA_CLUSTER" || exit
-			slurm_id=$(sbatch -a 1-"$count"%20 -o "$OUT_FOLD/${module}-%a.out" --export=MESA_DIR="$MESA_DIR",OUT_FOLD="$OUT_FOLD",MODULE="$module" --parsable "$MESA_SCRIPTS"/mesa-run-test-suite.sh)
+			slurm_id=$(sbatch -a 1-"${count}"%20 -o "${OUT_FOLD}/${module}-%a.out" --export=MESA_DIR="${MESA_DIR}",OUT_FOLD="${OUT_FOLD}",MODULE="${module}" --parsable "${MESA_SCRIPTS}/mesa-run-test-suite.sh")
 			depend=${depend}":$slurm_id"
 		fi		
 		echo $module $slurm_id
@@ -92,7 +91,7 @@ fi
 echo "$depend"
 cd "$MESA_SCRIPTS" || exit
 # Cleanup script to remove MESA_DIR
-sbatch -o "${OUT_FOLD}"/test-final.out --dependency=afterany:"$depend" --export=MESA_DIR="$MESA_DIR" "${MESA_SCRIPTS}/mesa-test-final.sh"
+sbatch -o "${OUT_FOLD}"/test-final.out --dependency=afterany:"${depend}" --export=MESA_DIR="$MESA_DIR" "${MESA_SCRIPTS}/mesa-test-final.sh"
 
 } 
 
