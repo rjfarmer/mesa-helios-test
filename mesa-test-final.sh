@@ -16,6 +16,8 @@ echo $HOME
 echo $MESA_DIR
 echo $OUT_FOLD
 
+source ~/.bashrc
+
 #Set variables
 source ~/data/mesa/mesa-helios-test/mesa_test.sh
 

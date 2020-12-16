@@ -7,6 +7,8 @@
 #SBATCH -J single
 #SBATCH --no-requeue
 
+source ~/.bashrc
+
 {
 echo $SLURM_JOB_NODELIST
 echo $SLURM_LOCALID
@@ -53,9 +55,6 @@ sed -i '/^mesa_dir/Id' "${folder}/ck"
 ~/bin/mesa_test $MESA_TEST_VERSION test -m=$MODULE --mesadir=$MESA_DIR $ID
 
 cp "${MESA_DIR}/${MODULE}/test_suite/${folder}/out.txt" "${OUT_FOLD}/${folder}".txt
-
-rm "$folder"
-mv "${MESA_CACHES_DIR}/${folder}" "$folder"
 
 rm -rf "${MESA_CACHES_DIR}"
 }
