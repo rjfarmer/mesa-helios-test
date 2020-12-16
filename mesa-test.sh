@@ -58,9 +58,9 @@ echo $HOME
 ~/bin/mesa_test $MESA_TEST_VERSION submit -e --mesadir=$MESA_DIR
 
 
-if grep -Fq "MESA installation was successful" "$MESA_DIR/build.log" ; then
-        echo "Checkout failed"
-        exit 1
+if ! grep -q "MESA installation was successful" "$MESA_DIR/build.log" ; then
+	echo "Checkout failed"
+	exit 1
 fi
 
 
