@@ -5,6 +5,7 @@
 #SBATCH --mem 16gb
 #SBATCH -J mesatestfinal
 #SBATCH --no-requeue
+#SBATCH  --exclude=helios-cn007
 
 echo $SLURM_JOB_NODELIST
 echo $SLURM_LOCALID

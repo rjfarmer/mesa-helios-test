@@ -6,6 +6,7 @@
 #SBATCH --mem 16gb
 #SBATCH -J test-build
 #SBATCH --no-requeue
+#SBATCH  --exclude=helios-cn007
 
 echo $HOME
 echo $OUT_FOLD
@@ -57,7 +58,7 @@ echo $HOME
 ~/bin/mesa_test $MESA_TEST_VERSION submit -e --mesadir=$MESA_DIR
 
 
-if grep -Fq "MESA installation was successful" $MESA_DIR ; then
+if grep -Fq "MESA installation was successful" "$MESA_DIR/build.log" ; then
         echo "Checkout failed"
         exit 1
 fi

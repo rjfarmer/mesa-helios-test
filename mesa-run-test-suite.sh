@@ -4,8 +4,9 @@
 #SBATCH -c 12
 #SBATCH -t 6:00:00
 #SBATCH --mem 16gb
-#SBATCH -J single
+#SBATCH -J mesatestmod
 #SBATCH --no-requeue
+#SBATCH  --exclude=helios-cn007
 
 source ~/.bashrc
 
