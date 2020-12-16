@@ -24,7 +24,7 @@ fi
 
 last_ver=-1
 # Loop over recent commits
-for i in $(git log --since="1 hour" --all --format="%H");
+for i in $(git log --since="10 mins" --all --format="%h");
 do
 	echo "Submitting $i" 
 

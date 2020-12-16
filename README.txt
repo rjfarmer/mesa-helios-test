@@ -7,9 +7,9 @@ Then for each commit we spawn a slurm job thats runs mesa-test.sh
 Each mesa-test.sh clones one version from git, and runs the test suite for that version in parallel.
 
 mesa-run-test-suite.sh runs one test case, by copying the test case to a local folder.
-It can hand;e all types (star,binary, and astero)
+It can handle all types (star,binary, and astero) of test cases
 
-mesa-test.sh submits mesa-test-final which has a dependancy on all the mesa-run-test-suite.sh scripts that where submitted
+mesa-test.sh then submits mesa-test-final which has a dependancy on all the mesa-run-test-suite.sh scripts that where submitted
 mesa-test-final runs any final cleanup, namely deleteing MESA_DIR
 
 mesa_test.sh holds common shell variables 
