@@ -15,8 +15,9 @@ echo $SLURM_NODEID
 echo $SLURM_JOB_ID
 echo $SLURMD_NODENAME
 echo $MESA_DIR
+echo $MODULE $SLURM_ARRAY_TASK_ID
 
-#Set varaibales
+#Set variables
 source ~/data/mesa/mesa-helios-test/mesa_test.sh
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
@@ -28,7 +29,7 @@ echo $MESA_CACHES_DIR
 
 ID=$SLURM_ARRAY_TASK_ID
 
-cd $MESA_DIR/$OBJECT/test_suite
+cd "${MESA_DIR}/${MODULE}/test_suite"
 
 # Map id number to MESA test case name
 folder=$(./list_tests $ID)
@@ -40,25 +41,19 @@ echo $folder $ID
 # then soft links back to MESA_DIR so mesa_test does not get confused about missing test cases
 # Then we need to fix the inlists now that we are running outside of MESA_DIR
 
-mv "$folder" "$MESA_CACHES_DIR/$folder"
+mv "$folder" "${MESA_CACHES_DIR}/${folder}"
 
-ln -sf "${MESA_CACHES_DIR}/${folder}" "${MESA_DIR}/${OBJECT}/test_suite/${folder}"
+ln -sf "${MESA_CACHES_DIR}/${folder}" "${MESA_DIR}/${MODULE}/test_suite/${folder}"
 
-sed -i '/mesa_dir/d' "$folder"/inlist*
-sed -i '/^mesa_dir/d' "$folder/make/makefile"
-sed -i '/^mesa_dir/d' "$folder/rn"
+sed -i '/mesa_dir/Id' "${folder}"/inlist*
+sed -i '/^mesa_dir/Id' "${folder}/make/makefile"
+sed -i '/^mesa_dir/Id' "${folder}/rn"
 
-sed -i '/MESA_DIR/d' "$folder"/inlist*
-sed -i '/^MESA_DIR/d' "$folder/make/makefile"
-sed -i '/^MESA_DIR/d' "$folder/rn"
+mesa_test $MESA_TEST_VERSION test -m=$MODULE --mesadir=$MESA_DIR $ID
 
-mesa_test $MESA_TEST_VERSION -m=$OBJECT --mesadir=$MESA_DIR $ID
+cp "${MESA_DIR}/${MODULE}/test_suite/${folder}/out.txt" "${OUT_FOLD}/${folder}".txt
 
-#~/bin/mesa_test test_one $MESA_DIR $ID --force --auto-diff -m=$OBJECT
-
-cp "${MESA_DIR}/${OBJECT}/test_suite/$folder/out.txt" "${OUT_FOLD}/${folder}".txt
-
-rm -rf $MESA_CACHES_DIR
+rm -rf "${MESA_CACHES_DIR}"
 }
 
 

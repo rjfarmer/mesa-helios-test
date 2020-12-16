@@ -52,7 +52,7 @@ export OUT_FOLD=$MESA_LOG/$VERSION
 mkdir -p "$OUT_FOLD"
 echo $OUT_FOLD
 
-# Checkout to new folder
+# Checkout and install to new folder
 mesa_test $MESA_TEST_VERSION install -c --mesadir=$MESA_DIR $VERSION 
 
 if [[ $? != 0 ]]; then
@@ -65,7 +65,7 @@ cd $MESA_DIR
 # Look for tests to be skipped
 export skip_tests=0
 if [[ $(git log -1) == *'[ci skip]'* ]];then
-        skip_tests=1
+	export skip_tests=1
 fi
 
 rm "$MESA_DIR"/data/*/cache/*
@@ -75,24 +75,24 @@ depend="$SLURM_JOB_ID"
 
 # Submit test cases
 if [[ $skip_tests -eq 0 ]]; then
-	for i in star binary astero;
+	for module in star binary astero;
 	do
-		cd "$MESA_DIR"/$i/test_suite || exit
+		cd "${MESA_DIR}"/${module}/test_suite || exit
 		count=$(./count_tests)
 		if [[ -z "$count" ]];then
 			echo "No $i tests found"
 		else
 			cd "$MESA_CLUSTER" || exit
-			slurm_id=$(sbatch -a 1-"$count"%20 -o "$OUT_FOLD/${i}-%a.out" --export=MESA_DIR="$MESA_DIR",OUT_FOLD="$OUT_FOLD",OBJECT="$i" --parsable "$MESA_SCRIPTS"/mesa-run-test-suite.sh)
+			slurm_id=$(sbatch -a 1-"$count"%20 -o "$OUT_FOLD/${module}-%a.out" --export=MESA_DIR="$MESA_DIR",OUT_FOLD="$OUT_FOLD",MODULE="$module" --parsable "$MESA_SCRIPTS"/mesa-run-test-suite.sh)
 			depend=${depend}":$slurm_id"
 		fi		
-		echo $i $slurm_id
+		echo $module $slurm_id
 	done
 fi
 echo "$depend"
 cd "$MESA_SCRIPTS" || exit
 # Cleanup script to remove MESA_DIR
-sbatch -o "${OUT_FOLD}"/test-final.out --dependency=afterany:"$depend" --export=HOME="$HOME",OUT_FOLD="$OUT_FOLD" "${MESA_SCRIPTS}/mesa-test-final.sh"
+sbatch -o "${OUT_FOLD}"/test-final.out --dependency=afterany:"$depend" --export=MESA_DIR="$MESA_DIR" "${MESA_SCRIPTS}/mesa-test-final.sh"
 
 } 
 
