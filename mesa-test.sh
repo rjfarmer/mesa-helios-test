@@ -55,10 +55,16 @@ echo $OUT_FOLD
 # Checkout and install to new folder
 mesa_test $MESA_TEST_VERSION install -c --mesadir=$MESA_DIR $VERSION 
 
-if [[ $? != 0 ]]; then
+err=$?
+
+mesa_test $MESA_TEST_VERSION submit -e --mesadir=$MESA_DIR
+
+
+if [[ $err != 0 ]]; then
         echo "Checkout failed"
         exit 1
 fi
+
 
 cd "${MESA_DIR}" || exit
 

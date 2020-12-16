@@ -48,6 +48,7 @@ ln -sf "${MESA_CACHES_DIR}/${folder}" "${MESA_DIR}/${MODULE}/test_suite/${folder
 sed -i '/mesa_dir/Id' "${folder}"/inlist*
 sed -i '/^mesa_dir/Id' "${folder}/make/makefile"
 sed -i '/^mesa_dir/Id' "${folder}/rn"
+sed -i '/^mesa_dir/Id' "${folder}/ck"
 
 mesa_test $MESA_TEST_VERSION test -m=$MODULE --mesadir=$MESA_DIR $ID
 

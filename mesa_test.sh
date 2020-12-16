@@ -3,7 +3,7 @@ export MESA_LOG=~/data/mesa/testhub_git # Where to log output to
 export MESA_TMP=~/data/mesa/mesatest_git # Where to checkout each MESA to
 export MESA_SCRIPTS=~/data/mesa/mesa-helios-test # Where this script sits
 
-export MESA_TEST_VERSION=_0.3.6_
+export MESA_TEST_VERSION=_1.0.0_
 
 export MESASDK_ROOT=~/mesa/sdk/mesasdk-20.3.1
 source $MESASDK_ROOT/bin/mesasdk_init.sh

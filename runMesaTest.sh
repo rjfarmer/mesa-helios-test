@@ -16,6 +16,7 @@ cd "$MESA_GIT" || exit
 
 # Get all updates over all branches
 git fetch --all
+git pull
 
 if [[ $? != 0 ]];then
 	echo "Update failed"
@@ -24,7 +25,7 @@ fi
 
 last_ver=-1
 # Loop over recent commits
-for i in $(git log --since="10 mins" --all --format="%h");
+for i in $(git log --since="10 minutes" --all --format="%h");
 do
 	echo "Submitting $i" 
 
