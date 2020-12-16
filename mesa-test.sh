@@ -53,40 +53,19 @@ mkdir -p "$OUT_FOLD"
 echo $OUT_FOLD
 
 # Checkout to new folder
-git clone $MESA_GIT $MESA_DIR
+mesa_test $MESA_TEST_VERSION install -c --mesadir=$MESA_DIR $VERSION 
 
 if [[ $? != 0 ]]; then
-	echo "Clone failed"
-	exit 1
-fi
-
-cd $MESA_DIR || exit
-
-git checkout $VERSION
-if [[ $? != 0 ]]; then
-        echo "checkout failed"
+        echo "Checkout failed"
         exit 1
 fi
+
+cd $MESA_DIR
 
 # Look for tests to be skipped
 export skip_tests=0
 if [[ $(git log -1) == *'[ci skip]'* ]];then
         skip_tests=1
-fi
-
-./clean
-
-./install
-error_code=$?
-
-#~/bin/mesa_test submit_revision "$MESA_DIR" --force
-
-# Check if mesa installed correctly
-if [[ $error_code != 0 ]] || [[ ! -f "$MESA_DIR/lib/libstar.a" ]]; then
-	echo "Install failed"
-	cd "$HOME" || exit
-	rm -rf "$MESA_DIR"
-	exit 1
 fi
 
 rm "$MESA_DIR"/data/*/cache/*
@@ -115,8 +94,6 @@ cd "$MESA_SCRIPTS" || exit
 # Cleanup script to remove MESA_DIR
 sbatch -o "${OUT_FOLD}"/test-final.out --dependency=afterany:"$depend" --export=HOME="$HOME",OUT_FOLD="$OUT_FOLD" "${MESA_SCRIPTS}/mesa-test-final.sh"
 
-
-
-} 2>&1 | tee "${OUT_FOLD}"/tee.txt
+} 
 
 

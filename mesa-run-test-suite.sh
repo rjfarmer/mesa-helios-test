@@ -52,6 +52,7 @@ sed -i '/MESA_DIR/d' "$folder"/inlist*
 sed -i '/^MESA_DIR/d' "$folder/make/makefile"
 sed -i '/^MESA_DIR/d' "$folder/rn"
 
+mesa_test $MESA_TEST_VERSION -m=$OBJECT --mesadir=$MESA_DIR $ID
 
 #~/bin/mesa_test test_one $MESA_DIR $ID --force --auto-diff -m=$OBJECT
 
