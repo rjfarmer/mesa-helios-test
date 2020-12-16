@@ -50,9 +50,12 @@ sed -i '/^mesa_dir/Id' "${folder}/make/makefile"
 sed -i '/^mesa_dir/Id' "${folder}/rn"
 sed -i '/^mesa_dir/Id' "${folder}/ck"
 
-mesa_test $MESA_TEST_VERSION test -m=$MODULE --mesadir=$MESA_DIR $ID
+~/bin/mesa_test $MESA_TEST_VERSION test -m=$MODULE --mesadir=$MESA_DIR $ID
 
 cp "${MESA_DIR}/${MODULE}/test_suite/${folder}/out.txt" "${OUT_FOLD}/${folder}".txt
+
+rm "$folder"
+mv "${MESA_CACHES_DIR}/${folder}" "$folder"
 
 rm -rf "${MESA_CACHES_DIR}"
 }

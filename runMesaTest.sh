@@ -16,7 +16,7 @@ cd "$MESA_GIT" || exit
 
 # Get all updates over all branches
 git fetch --all
-git pull
+git pull origin main
 
 if [[ $? != 0 ]];then
 	echo "Update failed"
@@ -25,14 +25,17 @@ fi
 
 last_ver=-1
 # Loop over recent commits
-for i in $(git log --since="10 minutes" --all --format="%h");
+for i in $(git log --since="100 minutes" --all --format="%h");
 do
 	echo "Submitting $i" 
 
+	export OUT_FOLD=$MESA_LOG/$i
+	mkdir -p "$OUT_FOLD"
+
 	if [[ $last_ver -lt 0 ]]; then
-		last_ver=$(sbatch --parsable --export=VERSION=$i mesa-test.sh)
+		last_ver=$(sbatch -o "$OUT_FOLD"/build.txt --parsable --export=VERSION=$i,OUT_FOLD="$OUT_FOLD" "${MESA_SCRIPTS}/mesa-test.sh")
 	else
-		last_ver=$(sbatch --dependency=afterany:$last_ver --parsable --export=VERSION=$i mesa-test.sh)
+		last_ver=$(sbatch -o "$OUT_FOLD"/build.txt --dependency=afterany:$last_ver --parsable --export=VERSION=$i,OUT_FOLD="$OUT_FOLD" "${MESA_SCRIPTS}/mesa-test.sh")
 	fi
 	echo $last_ver
 

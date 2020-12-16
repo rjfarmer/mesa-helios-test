@@ -48,16 +48,12 @@ done
 export MESA_DIR=$(mktemp -d -p "$MESA_TMP")
 echo $MESA_DIR
 
-export OUT_FOLD=$MESA_LOG/$VERSION
-mkdir -p "$OUT_FOLD"
-echo $OUT_FOLD
-
 # Checkout and install to new folder
-mesa_test $MESA_TEST_VERSION install -c --mesadir=$MESA_DIR $VERSION 
+~/bin/mesa_test $MESA_TEST_VERSION install -c --mesadir=$MESA_DIR $VERSION 
 
 err=$?
 
-mesa_test $MESA_TEST_VERSION submit -e --mesadir=$MESA_DIR
+~/bin/mesa_test $MESA_TEST_VERSION submit -e --mesadir=$MESA_DIR
 
 
 if [[ $err != 0 ]]; then
@@ -99,6 +95,6 @@ cd "$MESA_SCRIPTS" || exit
 # Cleanup script to remove MESA_DIR
 sbatch -o "${OUT_FOLD}"/test-final.out --dependency=afterany:"${depend}" --export=MESA_DIR="$MESA_DIR" "${MESA_SCRIPTS}/mesa-test-final.sh"
 
-} 
+}
 
 
