@@ -26,7 +26,7 @@ fi
 
 last_ver=-1
 # Loop over recent commits
-for i in $(git log --since="10 minutes" --all --format="%h");
+for i in $(git log --since="20 minutes" --all --format="%h");
 do
 	export OUT_FOLD=$MESA_LOG/$i
 
