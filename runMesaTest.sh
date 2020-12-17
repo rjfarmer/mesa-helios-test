@@ -25,8 +25,8 @@ if [[ $? != 0 ]];then
 fi
 
 last_ver=-1
-# Loop over recent commits
-for i in $(git log --since="20 minutes" --all --format="%h");
+# Loop over recent commits, do both time and number to catch when things go wrong
+for i in $(git log --since="20 minutes" --all --format="%h") $(git log -10 --all --format="%h");
 do
 	export OUT_FOLD=$MESA_LOG/$i
 
