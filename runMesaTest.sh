@@ -25,8 +25,8 @@ if [[ $? != 0 ]];then
 fi
 
 last_ver=-1
-# Loop over recent commits, doing only the most recent 15 commits
-for i in $(git log -10 --all --format="%h");
+# Loop over recent commits
+for i in $(git log --since="10 minutes" --all --format="%h");
 do
 	export OUT_FOLD=$MESA_LOG/$i
 
