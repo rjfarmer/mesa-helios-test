@@ -10,6 +10,7 @@ fi
 echo "**********************"
 date
 
+source ~/.bashrc
 source ~/data/mesa/mesa-helios-test/mesa_test.sh
 
 cd "$MESA_GIT" || exit
@@ -24,13 +25,18 @@ if [[ $? != 0 ]];then
 fi
 
 last_ver=-1
-# Loop over recent commits
-for i in $(git log --since="10 minutes" --all --format="%h");
+# Loop over recent commits, doing only the most recent 15 commits
+for i in $(git log -10 --all --format="%h");
 do
-	echo "Submitting $i" 
-
 	export OUT_FOLD=$MESA_LOG/$i
-	mkdir -p "$OUT_FOLD"
+
+	if [ -d $OUT_FOLD ]; then
+		echo "Skipping $i"
+		continue
+	else
+		echo "Submitting $i" 
+		mkdir -p "$OUT_FOLD"
+	fi
 
 	if [[ $last_ver -lt 0 ]]; then
 		last_ver=$(sbatch -o "$OUT_FOLD"/build.txt --parsable --export=VERSION=$i,HOME=$HOME,OUT_FOLD="$OUT_FOLD" "${MESA_SCRIPTS}/mesa-test.sh")
@@ -39,8 +45,6 @@ do
 	fi
 	echo $last_ver
 
-	# Run one test for now
-	exit 0
 done
 date
 echo "**********************"
