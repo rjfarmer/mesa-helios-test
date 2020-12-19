@@ -19,6 +19,9 @@ cd "$MESA_GIT" || exit
 git fetch --all
 git pull origin main
 
+# remove now deleted branches
+git prune
+
 if [[ $? != 0 ]];then
 	echo "Update failed"
 	exit 1
