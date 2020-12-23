@@ -60,6 +60,7 @@ echo $HOME
 
 if ! grep -q "MESA installation was successful" "$MESA_DIR/build.log" ; then
 	echo "Checkout failed"
+	rm -rf $MESA_DIR
 	exit 1
 fi
 
