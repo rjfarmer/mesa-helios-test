@@ -49,6 +49,11 @@ do
 	echo $last_ver
 
 done
+
+# Clean up old folders
+#cd $MESA_LOG
+#find . -mindepth 1 -maxdepth 1 -type d -ctime +10 -exec rm -rf {} +
+
 date
 echo "**********************"
 } 2>&1 | tee -a ~/log_mesa_test.txt

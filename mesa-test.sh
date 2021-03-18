@@ -20,7 +20,7 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
 	echo "script ${BASH_SOURCE[0]} is being sourced ..."
 	exit 1
 fi
-
+date
 echo $SLURM_JOB_NODELIST
 echo $SLURM_LOCALID
 echo $SLURM_NODE_ALIASES
@@ -52,6 +52,8 @@ export MESA_DIR=$(mktemp -d -p "$MESA_TMP")
 echo $MESA_DIR
 echo $HOME
 
+export MESA_GIT_LFS_SLEEP=10
+
 # Checkout and install to new folder
 ~/bin/mesa_test $MESA_TEST_VERSION install -c --mesadir=$MESA_DIR $VERSION 
 
@@ -63,7 +65,7 @@ if ! grep -q "MESA installation was successful" "$MESA_DIR/build.log" ; then
 	rm -rf $MESA_DIR
 	exit 1
 fi
-
+date
 
 cd "${MESA_DIR}" || exit
 
@@ -72,6 +74,14 @@ export skip_tests=0
 if [[ $(git log -1) == *'[ci skip]'* ]];then
 	export skip_tests=1
 fi
+
+# Should we split test cases?
+export split_tests=0
+if [[ $(git log -1) == *'[ci split]'* ]];then
+  	export split_tests=1
+fi
+
+
 
 rm "${MESA_DIR}"/data/*/cache/*
 
@@ -87,9 +97,14 @@ if [[ $skip_tests -eq 0 ]]; then
 		if [[ -z "$count" ]];then
 			echo "No $module tests found"
 		else
-			slurm_id=$(sbatch -a 1-"${count}"%20 -o "${OUT_FOLD}/${module}-%a.out" --export=MESA_DIR="${MESA_DIR}",HOME=$HOME,OUT_FOLD="${OUT_FOLD}",MODULE="${module}" --parsable "${MESA_SCRIPTS}/mesa-run-test-suite.sh")
+			tests="1-${count}%20"
+			if [[ $split_tests -eq 1 ]];then
+			    tests="$((count/2))-${count}%20"
+			fi
+			echo "Running tests: $tests"
+			slurm_id=$(sbatch -a $tests -o "${OUT_FOLD}/${module}-%a.out" --export=MESA_DIR="${MESA_DIR}",HOME=$HOME,OUT_FOLD="${OUT_FOLD}",MODULE="${module}" --parsable "${MESA_SCRIPTS}/mesa-run-test-suite.sh")
 			depend=${depend}":$slurm_id"
-		fi		
+		fi
 		echo $module $slurm_id
 	done
 fi

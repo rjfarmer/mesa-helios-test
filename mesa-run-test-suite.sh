@@ -32,6 +32,19 @@ echo $MESA_CACHES_DIR
 
 ID=$SLURM_ARRAY_TASK_ID
 
+cd ${MESA_DIR}
+msg="$(git log --format=%B -n 1)"
+
+if [[ "$msg" == *'[ci optional'* ]]; then
+        y=$(echo "$msg" | cut -d "[" -f2 | cut -d "]" -f1 | cut -d " " -f3)
+        if [[ ! -z "$y" ]]; then
+        	if [[ "$ID" -le "$MAX_OPTS" ]] && [[ "$ID" -le "$y" ]]; then
+			export MESA_RUN_OPTIONAL=t
+		fi
+	fi
+fi
+
+
 cd "${MESA_DIR}/${MODULE}/test_suite"
 
 # Map id number to MESA test case name
@@ -56,6 +69,9 @@ sed -i '/^mesa_dir/Id' "${folder}/ck"
 ~/bin/mesa_test $MESA_TEST_VERSION test -m=$MODULE --mesadir=$MESA_DIR $ID
 
 cp "${MESA_DIR}/${MODULE}/test_suite/${folder}/out.txt" "${OUT_FOLD}/${folder}".txt
+cp "${MESA_DIR}/${MODULE}/test_suite/${folder}/err.txt" "${OUT_FOLD}/${folder}".err.txt
+cp "${MESA_DIR}/${MODULE}/test_suite/${folder}/testhub.yml" "${OUT_FOLD}/${folder}".testhub.yml
+
 
 rm -rf "${MESA_CACHES_DIR}"
 }
