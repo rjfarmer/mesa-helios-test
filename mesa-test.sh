@@ -81,6 +81,10 @@ if [[ $(git log -1) == *'[ci split]'* ]];then
   	export split_tests=1
 fi
 
+# Skip optional tests as we cant handle the load
+if [[ $(git log -1) == *'[ci optional'* ]];then
+        export skip_tests=1
+fi
 
 
 rm "${MESA_DIR}"/data/*/cache/*

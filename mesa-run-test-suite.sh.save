@@ -32,6 +32,22 @@ echo $MESA_CACHES_DIR
 
 ID=$SLURM_ARRAY_TASK_ID
 
+
+cd ${MESA_DIR}
+msg="$(git log -1)"
+
+if [[ "$msg" == *'[ci optional]'* ]] && (( $ID <= 20 ));then
+	export MESA_TEST_OPTIONAL=t
+fi
+
+if [[ "$msg" == *'[ci optional'* ]];then
+	y=$(echo "$msg" | cut -d "[" -f2 | cut -d "]" -f1 | cut -d " " -f3)
+	if [[ -z "${y+9999}"
+        export MESA_TEST_OPTIONAL=t
+fi
+
+
+
 cd "${MESA_DIR}/${MODULE}/test_suite"
 
 # Map id number to MESA test case name

@@ -11,6 +11,7 @@ source $MESASDK_ROOT/bin/mesasdk_init.sh
 
 export OMP_NUM_THREADS=1
 export MAX_OPTS=20
+export HDF5_USE_FILE_LOCKING='FALSE'
 
 export OP_MONO_BASE=~/mesa/mesa
 export MESA_OP_MONO_DATA_PATH=$OP_MONO_BASE/OP4STARS_1.3/mono
