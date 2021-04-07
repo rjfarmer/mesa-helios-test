@@ -27,7 +27,7 @@ if [[ $? != 0 ]];then
 	exit 1
 fi
 
-last_ver=-1
+last_ver=1
 # Loop over recent commits, do both time and number to catch when things go wrong
 for i in $(git log --since="20 minutes" --all --format="%h") $(git log -10 --all --format="%h");
 do
@@ -41,11 +41,7 @@ do
 		mkdir -p "$OUT_FOLD"
 	fi
 
-	if [[ $last_ver -lt 0 ]]; then
-		last_ver=$(sbatch -o "$OUT_FOLD"/build.txt --parsable --export=VERSION=$i,HOME=$HOME,OUT_FOLD="$OUT_FOLD" "${MESA_SCRIPTS}/mesa-test.sh")
-	else
-		last_ver=$(sbatch -o "$OUT_FOLD"/build.txt --dependency=afterany:$last_ver --parsable --export=VERSION=$i,HOME=$HOME,OUT_FOLD="$OUT_FOLD" "${MESA_SCRIPTS}/mesa-test.sh")
-	fi
+	last_ver=$(sbatch -o "$OUT_FOLD"/build.txt --dependency=afterany:$last_ver --parsable --export=VERSION=$i,HOME=$HOME,OUT_FOLD="$OUT_FOLD" "${MESA_SCRIPTS}/mesa-test.sh")
 	echo $last_ver
 
 done
