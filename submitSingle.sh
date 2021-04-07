@@ -1,7 +1,7 @@
 #!/bin/bash
 
 source ~/.bashrc
-source ~/data/mesa/mesa-helios-test/mesa_test.sh
+source ~/data/mesa/mesa-helios-test/mesa_vars.sh
 
 i=$1
 

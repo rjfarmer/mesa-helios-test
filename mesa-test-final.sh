@@ -5,7 +5,7 @@
 #SBATCH --mem 16gb
 #SBATCH -J mesatestfinal
 #SBATCH --no-requeue
-#SBATCH  --exclude=helios-cn007
+#SBATCH  --exclude=helios-cn007,helios-cn001
 
 echo $SLURM_JOB_NODELIST
 echo $SLURM_LOCALID
@@ -20,7 +20,7 @@ echo $OUT_FOLD
 source ~/.bashrc
 
 #Set variables
-source ~/data/mesa/mesa-helios-test/mesa_test.sh
+source ~/data/mesa/mesa-helios-test/mesa_vars.sh
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 

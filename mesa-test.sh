@@ -6,7 +6,7 @@
 #SBATCH --mem 16gb
 #SBATCH -J test-build
 #SBATCH --no-requeue
-#SBATCH  --exclude=helios-cn007
+#SBATCH  --exclude=helios-cn007,helios-cn001
 
 echo $HOME
 echo $OUT_FOLD
@@ -15,11 +15,6 @@ echo "-----"
 source ~/.bashrc
 
 {
-# Dont let this file get confused with mesa_test.sh
-if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
-	echo "script ${BASH_SOURCE[0]} is being sourced ..."
-	exit 1
-fi
 date
 echo $SLURM_JOB_NODELIST
 echo $SLURM_LOCALID
@@ -32,7 +27,7 @@ echo $HOME
 echo "**********"
 #Set variables
 
-source ~/data/mesa/mesa-helios-test/mesa_test.sh
+source ~/data/mesa/mesa-helios-test/mesa_vars.sh
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 echo $MESASDK_ROOT
