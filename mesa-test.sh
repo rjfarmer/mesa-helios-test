@@ -37,9 +37,12 @@ echo $VERSION
 # Limit number of mesa's being tested at once
 while [[ $(ls -d "${MESA_TMP}"/tmp.* | wc -l) -gt 10 ]];
 do
-	echo "Too many tests in progress sleeping"
-	date
-	sleep 10m
+	# Instead of just sleeping (which can deadlock if too many jobs gets scheduled at once)
+	# cancel this job (by deleteing the folder in testhub_git) so it gets rescehduled at next cron run
+	# This should prevent deadlocks by allowing some jobs to run
+	echo "Too many tests in progress"
+	rm -rf "${OUT_FOLD}"
+	exit 1
 done
 
 # Make a temporay folder to build mesa in
