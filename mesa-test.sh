@@ -99,6 +99,10 @@ if [[ $skip_tests -eq 0 ]]; then
 		if [[ -z "$count" ]];then
 			echo "No $module tests found"
 		else
+			if [[ "$count" == 0 ]]; then
+				echo "Zero tests to run for $module"
+				continue
+			fi
 			tests="1-${count}%20"
 			if [[ $split_tests -eq 1 ]];then
 			    tests="$((count/2))-${count}%20"

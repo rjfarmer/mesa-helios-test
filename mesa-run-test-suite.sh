@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH -N 1
-#SBATCH -c 12
+#SBATCH -c 8
 #SBATCH -t 6:00:00
 #SBATCH --mem 16gb
 #SBATCH -J mesatestmod
