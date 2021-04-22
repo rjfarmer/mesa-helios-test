@@ -24,5 +24,5 @@ source ~/data/mesa/mesa-helios-test/mesa_vars.sh
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-rm -rf "$MESA_DIR"
-
+#rm -rf "$MESA_DIR"
+git -C "$MESA_GIT" worktree remove --force "$MESA_DIR"
