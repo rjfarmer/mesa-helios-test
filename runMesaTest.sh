@@ -47,8 +47,8 @@ do
 done
 
 # Clean up old folders
-#cd $MESA_LOG
-#find . -mindepth 1 -maxdepth 1 -type d -ctime +10 -exec rm -rf {} +
+cd $MESA_LOG
+find . -mindepth 1 -maxdepth 1 -type d -ctime +10 -exec rm -rf {} +
 
 date
 echo "**********************"
