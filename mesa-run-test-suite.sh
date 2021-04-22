@@ -53,6 +53,10 @@ sed -i '/^mesa_dir/Id' "${folder}/make/makefile"
 sed -i '/^mesa_dir/Id' "${folder}/rn"
 sed -i '/^mesa_dir/Id' "${folder}/ck"
 
+if [[ $FPE_ON -eq 1 ]];then
+	export MESA_FPE_CHECKS_ON=1
+fi
+
 ~/bin/mesa_test $MESA_TEST_VERSION test -m=$MODULE --mesadir=$MESA_DIR $ID
 
 cp "${MESA_DIR}/${MODULE}/test_suite/${folder}/out.txt" "${OUT_FOLD}/${folder}".txt

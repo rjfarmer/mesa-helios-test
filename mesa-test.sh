@@ -84,6 +84,14 @@ if [[ $(git log -1) == *'[ci optional'* ]];then
         export skip_tests=1
 fi
 
+# Run FPE checking
+export fpe_checks=0
+if [[ $(git log -1) == *'[ci fpe]'* ]];then
+        export MESA_FPE_CHECKS_ON=1
+	export fpe_checks=1
+fi
+
+
 
 rm "${MESA_DIR}"/data/*/cache/*
 
@@ -108,7 +116,10 @@ if [[ $skip_tests -eq 0 ]]; then
 			    tests="$((count/2))-${count}%20"
 			fi
 			echo "Running tests: $tests"
-			slurm_id=$(sbatch -a $tests -o "${OUT_FOLD}/${module}-%a.out" --export=MESA_DIR="${MESA_DIR}",HOME=$HOME,OUT_FOLD="${OUT_FOLD}",MODULE="${module}" --parsable "${MESA_SCRIPTS}/mesa-run-test-suite.sh")
+			slurm_id=$(sbatch -a $tests -o "${OUT_FOLD}/${module}-%a.out" \
+				--export=MESA_DIR="${MESA_DIR}",HOME=$HOME,OUT_FOLD="${OUT_FOLD}",MODULE="${module}",FPE_ON="${fpe_checks}" \
+				 --parsable "${MESA_SCRIPTS}/mesa-run-test-suite.sh")
+
 			depend=${depend}":$slurm_id"
 		fi
 		echo $module $slurm_id
