@@ -79,14 +79,15 @@ if [[ $(git log -1) == *'[ci split]'* ]];then
   	export split_tests=1
 fi
 
-# Skip optional tests as we cant handle the load
-if [[ $(git log -1) == *'[ci optional'* ]];then
-        export skip_tests=1
+# Skip optional tests?
+export skip_opt=1
+if [[ $(git log -1) == *'[ci optional]'* ]] || [[ $SKIP_OPTS -eq 1 ]];then
+        export skip_opt=0 # Invert logic
 fi
 
 # Run FPE checking
 export fpe_checks=0
-if [[ $(git log -1) == *'[ci fpe]'* ]];then
+if [[ $(git log -1) == *'[ci fpe]'* ]] || [[ $FPE_ON -eq 1 ]];then
         export MESA_FPE_CHECKS_ON=1
 	export fpe_checks=1
 fi
@@ -117,7 +118,7 @@ if [[ $skip_tests -eq 0 ]]; then
 			fi
 			echo "Running tests: $tests"
 			slurm_id=$(sbatch -a $tests -o "${OUT_FOLD}/${module}-%a.out" \
-				--export=MESA_DIR="${MESA_DIR}",HOME=$HOME,OUT_FOLD="${OUT_FOLD}",MODULE="${module}",FPE_ON="${fpe_checks}" \
+				--export=MESA_DIR="${MESA_DIR}",HOME=$HOME,OUT_FOLD="${OUT_FOLD}",MODULE="${module}",FPE_ON="${fpe_checks}",SKIP_OPTS="${skip_opt}" \
 				 --parsable "${MESA_SCRIPTS}/mesa-run-test-suite.sh")
 
 			depend=${depend}":$slurm_id"

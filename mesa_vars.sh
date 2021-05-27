@@ -4,12 +4,12 @@ export MESA_LOG=~/data/mesa/testhub_git # Where to log output to
 export MESA_TMP=~/data/mesa/mesatest_git # Where to checkout each MESA to
 export MESA_SCRIPTS=~/data/mesa/mesa-helios-test # Where this script sits
 
-export MESA_TEST_VERSION=_1.0.5_
+export MESA_TEST_VERSION=_1.1.5_
 
 export MESASDK_ROOT=~/mesa/sdk/mesasdk-20.3.1
 source $MESASDK_ROOT/bin/mesasdk_init.sh
 
-export OMP_NUM_THREADS=1
+export OMP_NUM_THREADS=4
 export MAX_OPTS=20
 export HDF5_USE_FILE_LOCKING='FALSE'
 

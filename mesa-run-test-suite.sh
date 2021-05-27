@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH -N 1
-#SBATCH -c 8
+#SBATCH -c 12
 #SBATCH -t 6:00:00
 #SBATCH --mem 16gb
 #SBATCH -J mesatestmod
@@ -26,8 +26,8 @@ source ~/data/mesa/mesa-helios-test/mesa_vars.sh
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 # Where we will run one test case
-mkdir -p /hddstore/$USER
-export MESA_CACHES_DIR=$(mktemp -d -p /hddstore/$USER)
+mkdir -p /hddstore/rfarmer
+export MESA_CACHES_DIR=$(mktemp -d -p /hddstore/rfarmer)
 echo $MESA_CACHES_DIR
 
 ID=$SLURM_ARRAY_TASK_ID
@@ -37,6 +37,11 @@ cd "${MESA_DIR}/${MODULE}/test_suite"
 # Map id number to MESA test case name
 folder=$(./list_tests $ID)
 echo $folder $ID
+
+# Skip optionals?
+if [[ $SKIP_OPTS -eq 1 ]]; then
+	export MESA_SKIP_OPTIONAL=1
+fi
 
 # We want to run mesa on a local hard drive but store MESA_DIR
 # on the network.
